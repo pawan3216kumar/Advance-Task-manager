@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Template</title>
+</head>
+
+<body>
+  <div id="root"></div>
+</body>
+<script src="https://www.unpkg.com/react@18.2.0/umd/react.development.js"></script>
+<script src="https://www.unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script type="text/babel">
+
+  // Your  code will go here
+  function Task() {
+    const [inputData, setInputData] = React.useState("")
+    const [data, setData] = React.useState([])
+
+    function getData() {
+      axios.get("http://localhost:3000/users")
+        .then((res) => setData(res.data))
+        .catch((err) => console.log(err))
+    }
+    getData()
+
+    function hanldeClick() {
+      let task = { title: inputData, status: false }
+      console.log(task)
+
+      axios.post("http://localhost:3000/users", task)
+
+        .then(() => console.log("task Added"))
+        .catch(() => console.log("task not added"))
+    }
+
+    function handleDelete(ele, i) {
+         axios.delete(`http://localhost:3000/users/${ele.id} `)
+
+        .then(() => console.log("task deleted"))
+        .catch(() => console.log("task not deleted"))
+    }
+
+    function handleInput(e) {
+      e.preventDefault()
+      setInputData(e.target.value)
+    }
+
+
+    function handleChange(ele, i) {
+      axios.patch(`http://localhost:3000/users/${ele.id} `, { ...ele, status : !ele.status})
+        .then(() => console.log("task updated"))
+        .catch(() => console.log("task not updated"))
+
+    }
+    return (
+      <div>
+
+        
+        <div>
+          <input type="text" placeholder="Enter Task" onChange={handleInput} value={inputData} />
+          <button onClick={hanldeClick} >Add Task</button>
+
+        </div>
+
+        <div >
+          {data.map((ele, i) => {
+            return <li key={i}>{ele.title}
+              <span onClick = {()=>handleChange(ele , i)}> status :- {ele.status ? "completed" : "pending"}</span>
+              <button onClick ={() =>handleDelete(ele,i)}>Delete Task</button>
+    
+            </li>
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  let root = ReactDOM.createRoot(document.querySelector("#root"))
+
+  root.render(<Task />)
+</script>
+
+</html>
